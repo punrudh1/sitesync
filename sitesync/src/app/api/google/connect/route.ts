@@ -8,11 +8,11 @@ export async function GET(request: NextRequest) {
   if (!user) return NextResponse.redirect(new URL('/login', request.url));
 
   const clientId = process.env.GOOGLE_CLIENT_ID;
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
-  if (!clientId || !siteUrl) return NextResponse.redirect(new URL('/account?drive_error=configuration', request.url));
+  if (!clientId) return NextResponse.redirect(new URL('/account?drive_error=configuration', request.url));
 
   const state = randomBytes(32).toString('hex');
-  const redirectUri = new URL('/api/google/callback', siteUrl).toString();
+  // Use this deployment's origin so OAuth state cookies and callback stay on the same host.
+  const redirectUri = new URL('/api/google/callback', request.nextUrl.origin).toString();
   const params = new URLSearchParams({
     client_id: clientId,
     redirect_uri: redirectUri,
