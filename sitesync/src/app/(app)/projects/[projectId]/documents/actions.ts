@@ -33,12 +33,22 @@ export async function prepareUpload(projectId: string, input: { fileName: string
   }
   const versionId = randomUUID();
   const path = `${projectId}/${documentId}/${versionId}`;
-  const session = await googleDriveFetch('upload/drive/v3/files?uploadType=resumable&fields=id,name,size,mimeType', {
-    method: 'POST', headers: { 'content-type': 'application/json; charset=UTF-8', 'x-upload-content-type': input.mime || 'application/octet-stream', 'x-upload-content-length': String(input.size) },
-    body: JSON.stringify({ name: storageSafeName(input.fileName), mimeType: input.mime || 'application/octet-stream', appProperties: { sitesyncProject: projectId, sitesyncDocument: documentId, sitesyncVersion: versionId } }),
-  });
+  let session: Response;
+  try {
+    session = await googleDriveFetch('upload/drive/v3/files?uploadType=resumable&fields=id,name,size,mimeType', {
+      method: 'POST', headers: { 'content-type': 'application/json; charset=UTF-8', 'x-upload-content-type': input.mime || 'application/octet-stream', 'x-upload-content-length': String(input.size) },
+      body: JSON.stringify({ name: storageSafeName(input.fileName), mimeType: input.mime || 'application/octet-stream', appProperties: { sitesyncProject: projectId, sitesyncDocument: documentId, sitesyncVersion: versionId } }),
+    });
+  } catch (error) {
+    console.error('Google Drive resumable upload initialization failed:', error);
+    return fail(error instanceof Error ? error.message : 'Could not contact Google Drive');
+  }
   const uploadUrl = session.headers.get('location');
-  if (!session.ok || !uploadUrl) return fail('Could not start a Google Drive upload. Check the central Drive connection.');
+  if (!session.ok || !uploadUrl) {
+    const detail = (await session.text()).slice(0, 1200);
+    console.error('Google Drive resumable upload rejected:', session.status, detail);
+    return fail(`Google Drive rejected upload initialization (HTTP ${session.status}): ${detail || 'No resumable upload URL returned'}`);
+  }
   return { ok: true, documentId, versionId, path, uploadUrl };
 }
 
