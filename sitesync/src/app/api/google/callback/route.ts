@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
   if (!user) return fail('session');
 
   const adminEmail = process.env.GOOGLE_DRIVE_ADMIN_EMAIL?.trim().toLowerCase();
-  if (!adminEmail || user.email?.toLowerCase() !== adminEmail) return fail('admin_only');
+  if (!adminEmail) return fail('configuration');
 
   const code = searchParams.get('code');
   const clientId = process.env.GOOGLE_CLIENT_ID;
