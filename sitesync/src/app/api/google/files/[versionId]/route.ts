@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { googleDriveFetch } from '@/lib/google-drive';
 
-export async function GET(_request: NextRequest, context: { params: Promise<{ versionId: string }> }) {
+export async function GET(request: NextRequest, context: { params: Promise<{ versionId: string }> }) {
   const { versionId } = await context.params;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -26,7 +26,7 @@ export async function GET(_request: NextRequest, context: { params: Promise<{ ve
   const filename = (doc?.name ?? 'download').replace(/[\r\n"]/g, '_');
   const headers = new Headers({
     'content-type': version.mime_type || 'application/octet-stream',
-    'content-disposition': `inline; filename*=UTF-8''${encodeURIComponent(filename)}`,
+    'content-disposition': `${request.nextUrl.searchParams.get('download') === '1' ? 'attachment' : 'inline'}; filename*=UTF-8''${encodeURIComponent(filename)}`,
     'cache-control': 'private, no-store',
     'x-content-type-options': 'nosniff',
   });
