@@ -139,7 +139,7 @@ export async function getDownloadUrl(projectId: string, versionId: string): Prom
   // (documents.current_version_id also points back at versions), so it fails with PGRST201.
   const { data: v } = await supabase.from('document_versions').select('storage_path, storage_provider, document_id').eq('id', versionId).eq('project_id', projectId).maybeSingle();
   if (!v) return fail('File not found');
-  if (v.storage_provider === 'google_drive') return { ok: true, url: `/api/google/files/${versionId}` };
+  if (v.storage_provider === 'google_drive') return { ok: true, url: `/api/google/files/${versionId}?download=1` };
   const { data: doc } = await supabase.from('documents').select('name').eq('id', v.document_id).maybeSingle();
   const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(v.storage_path, 60, { download: doc?.name ?? 'download' });
   if (error || !data) return fail('Could not prepare the download');
