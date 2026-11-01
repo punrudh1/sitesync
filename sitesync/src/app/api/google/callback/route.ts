@@ -26,10 +26,9 @@ export async function GET(request: NextRequest) {
   const code = searchParams.get('code');
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
-  if (!code || !clientId || !clientSecret || !siteUrl || !process.env.GOOGLE_TOKEN_ENCRYPTION_KEY || !process.env.SUPABASE_SERVICE_ROLE_KEY) return fail('configuration');
+  if (!code || !clientId || !clientSecret || !process.env.GOOGLE_TOKEN_ENCRYPTION_KEY || !process.env.SUPABASE_SERVICE_ROLE_KEY) return fail('configuration');
 
-  const redirectUri = new URL('/api/google/callback', siteUrl).toString();
+  const redirectUri = new URL('/api/google/callback', origin).toString();
   const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST',
     headers: { 'content-type': 'application/x-www-form-urlencoded' },
