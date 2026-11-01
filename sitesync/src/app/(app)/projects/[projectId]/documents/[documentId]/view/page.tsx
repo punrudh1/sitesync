@@ -44,8 +44,8 @@ export default async function ViewPage({ params, searchParams }: { params: Promi
         <div className="ml-auto"><DownloadButton projectId={projectId} versionId={ver.id} /></div>
       </div>
       {kind === 'pdf' && <PdfViewer url={fileUrl} name={doc.name} markup={markup} />}
-      {kind === 'image' && <ImageViewer url={signed.signedUrl} name={doc.name} markup={markup} />}
-      {kind === 'dxf' && <><DxfViewer url={signed.signedUrl} name={doc.name} /><p className="text-xs text-navy-500">DXF preview is simplified and read-only. Markups are available on PDF and image drawings.</p></>}
+      {kind === 'image' && <ImageViewer url={fileUrl} name={doc.name} markup={markup} />}
+      {kind === 'dxf' && <><DxfViewer url={fileUrl} name={doc.name} /><p className="text-xs text-navy-500">DXF preview is simplified and read-only. Markups are available on PDF and image drawings.</p></>}
     </div>
   );
 }
