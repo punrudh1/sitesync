@@ -50,6 +50,10 @@ export async function finalizeUpload(projectId: string, input: {
   const { supabase } = await requireUser();
   const err = validateUpload(input.fileName, input.size, input.mime);
   if (err) return fail(err);
+  if (input.isNewVersion) {
+    const { data: existing } = await supabase.from('documents').select('extension').eq('id', input.documentId).eq('project_id', projectId).maybeSingle();
+    if (!existing || existing.extension !== extOf(input.fileName)) return fail('A new version must use the document’s existing file extension');
+  }
   const label = input.label?.trim().slice(0, 80) || null;
   const notes = (input.notes ?? '').trim().slice(0, 2000);
   const check = await googleDriveFetch(`files/${encodeURIComponent(input.driveFileId)}?fields=id,size,mimeType,trashed,appProperties`);
