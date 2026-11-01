@@ -32,12 +32,13 @@ export async function googleDriveFetch(path: string, init: RequestInit = {}) {
   const token = await googleAccessToken();
   const headers = new Headers(init.headers);
   headers.set('authorization', `Bearer ${token}`);
-  const response = await fetch(`https://www.googleapis.com/drive/v3/${path}`, { ...init, headers, cache: 'no-store' });
+  const endpoint = path.startsWith('upload/drive/v3/') ? `https://www.googleapis.com/${path}` : `https://www.googleapis.com/drive/v3/${path}`;
+  const response = await fetch(endpoint, { ...init, headers, cache: 'no-store' });
   if (response.status === 401) {
     cachedToken = null;
     const retryToken = await refreshAccessToken();
     headers.set('authorization', `Bearer ${retryToken}`);
-    return fetch(`https://www.googleapis.com/drive/v3/${path}`, { ...init, headers, cache: 'no-store' });
+    return fetch(endpoint, { ...init, headers, cache: 'no-store' });
   }
   return response;
 }
