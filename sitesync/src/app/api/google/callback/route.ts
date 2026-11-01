@@ -20,6 +20,9 @@ export async function GET(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return fail('session');
 
+  const adminEmail = process.env.GOOGLE_DRIVE_ADMIN_EMAIL?.trim().toLowerCase();
+  if (!adminEmail || user.email?.toLowerCase() !== adminEmail) return fail('admin_only');
+
   const code = searchParams.get('code');
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
@@ -39,6 +42,7 @@ export async function GET(request: NextRequest) {
   const profileResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', { headers: { authorization: `Bearer ${tokens.access_token}` }, cache: 'no-store' });
   const profile = await profileResponse.json();
   if (!profileResponse.ok || !profile.email) return fail('profile');
+  if (String(profile.email).toLowerCase() !== adminEmail) return fail('wrong_google_account');
 
   const admin = createAdminClient();
   const { error } = await admin.from('site_integrations').upsert({
