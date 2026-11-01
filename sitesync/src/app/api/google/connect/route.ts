@@ -7,11 +7,6 @@ export async function GET(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.redirect(new URL('/login', request.url));
 
-  const adminEmail = process.env.GOOGLE_DRIVE_ADMIN_EMAIL?.trim().toLowerCase();
-  if (!adminEmail || user.email?.toLowerCase() !== adminEmail) {
-    return NextResponse.redirect(new URL('/account?drive_error=admin_only', request.url));
-  }
-
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
   if (!clientId || !siteUrl) return NextResponse.redirect(new URL('/account?drive_error=configuration', request.url));
