@@ -20,6 +20,8 @@ export async function prepareUpload(projectId: string, input: { fileName: string
   if (!uuid.safeParse(projectId).success) return fail('Invalid project');
   const err = validateUpload(input.fileName, input.size, input.mime);
   if (err) return fail(err);
+  const { data: project } = await supabase.from('projects').select('id').eq('id', projectId).maybeSingle();
+  if (!project) return fail('Project not found or you do not have access');
 
   let documentId = randomUUID();
   if (input.documentId) {
@@ -50,9 +52,9 @@ export async function finalizeUpload(projectId: string, input: {
   if (err) return fail(err);
   const label = input.label?.trim().slice(0, 80) || null;
   const notes = (input.notes ?? '').trim().slice(0, 2000);
-  const check = await googleDriveFetch(`files/${encodeURIComponent(input.driveFileId)}?fields=id,size,mimeType,trashed`);
+  const check = await googleDriveFetch(`files/${encodeURIComponent(input.driveFileId)}?fields=id,size,mimeType,trashed,appProperties`);
   const driveFile = await check.json();
-  if (!check.ok || driveFile.trashed || String(driveFile.size) !== String(input.size)) {
+  if (!check.ok || driveFile.trashed || String(driveFile.size) !== String(input.size) || driveFile.appProperties?.sitesyncProject !== projectId || driveFile.appProperties?.sitesyncDocument !== input.documentId || driveFile.appProperties?.sitesyncVersion !== input.versionId) {
     await googleDriveFetch(`files/${encodeURIComponent(input.driveFileId)}`, { method: 'DELETE' });
     return fail('Google Drive upload could not be verified');
   }
