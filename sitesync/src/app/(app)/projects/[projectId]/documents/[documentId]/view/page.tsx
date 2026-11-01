@@ -20,7 +20,7 @@ export default async function ViewPage({ params, searchParams }: { params: Promi
   if (!doc) notFound();
   const kind = kindOf(doc.extension);
   if (kind === 'other') notFound();
-  const { data: ver } = await supabase.from('document_versions').select('id, version_number, storage_path').eq('id', v ?? doc.current_version_id ?? '').eq('document_id', documentId).maybeSingle();
+  const { data: ver } = await supabase.from('document_versions').select('id, version_number, storage_path, storage_provider').eq('id', v ?? doc.current_version_id ?? '').eq('document_id', documentId).maybeSingle();
   if (!ver) notFound();
   const [{ data: versions }, { data: anns }, { data: reps }, { data: members }] = await Promise.all([
     supabase.from('document_versions').select('id, version_number, revision_label').eq('document_id', documentId).order('version_number', { ascending: false }),
@@ -31,8 +31,8 @@ export default async function ViewPage({ params, searchParams }: { params: Promi
   const people = Object.fromEntries((members ?? []).map((m) => { const p = m.profiles as unknown as { full_name: string; email: string } | null; return [m.user_id, p?.full_name || p?.email || 'Unknown']; }));
   const annIds = new Set((anns ?? []).map((a) => a.id));
   const markup = { projectId, documentId, versionId: ver.id, userId: user.id, people, annotations: (anns ?? []) as Annotation[], replies: ((reps ?? []) as Reply[]).filter((r) => annIds.has(r.annotation_id)) };
-  const { data: signed } = await supabase.storage.from('project-files').createSignedUrl(ver.storage_path, 3600);
-  if (!signed) notFound();
+  const fileUrl = ver.storage_provider === 'google_drive' ? `/api/google/files/${ver.id}` : (await supabase.storage.from('project-files').createSignedUrl(ver.storage_path, 3600)).data?.signedUrl;
+  if (!fileUrl) notFound();
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-3 text-sm">
@@ -43,7 +43,7 @@ export default async function ViewPage({ params, searchParams }: { params: Promi
             {versions.map((x) => <Link key={x.id} href={`?v=${x.id}`} aria-current={x.id === ver.id} className={`rounded px-1.5 py-0.5 ${x.id === ver.id ? 'bg-brand text-white' : 'border border-slate-300 hover:bg-slate-100'}`}>v{x.version_number}</Link>)}</nav>)}
         <div className="ml-auto"><DownloadButton projectId={projectId} versionId={ver.id} /></div>
       </div>
-      {kind === 'pdf' && <PdfViewer url={signed.signedUrl} name={doc.name} markup={markup} />}
+      {kind === 'pdf' && <PdfViewer url={fileUrl} name={doc.name} markup={markup} />}
       {kind === 'image' && <ImageViewer url={signed.signedUrl} name={doc.name} markup={markup} />}
       {kind === 'dxf' && <><DxfViewer url={signed.signedUrl} name={doc.name} /><p className="text-xs text-navy-500">DXF preview is simplified and read-only. Markups are available on PDF and image drawings.</p></>}
     </div>
