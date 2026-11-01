@@ -4,8 +4,11 @@ import { createCipheriv, createDecipheriv, randomBytes } from 'node:crypto';
 function encryptionKey() {
   const value = process.env.GOOGLE_TOKEN_ENCRYPTION_KEY;
   if (!value) throw new Error('GOOGLE_TOKEN_ENCRYPTION_KEY is not configured');
-  const key = Buffer.from(value, 'base64');
-  if (key.length !== 32) throw new Error('GOOGLE_TOKEN_ENCRYPTION_KEY must be a base64-encoded 32-byte key');
+  // Accept a 64-character hex key or a base64-encoded 32-byte key.
+  const key = /^[0-9a-fA-F]{64}$/.test(value)
+    ? Buffer.from(value, 'hex')
+    : Buffer.from(value, 'base64');
+  if (key.length !== 32) throw new Error('GOOGLE_TOKEN_ENCRYPTION_KEY must encode exactly 32 bytes (64 hex characters or base64)');
   return key;
 }
 
