@@ -9,6 +9,8 @@ export function DriveConnection({ email, connectedAt }: { email: string | null; 
   const connected = params.get('drive_connected') === '1';
   const messages: Record<string, string> = {
     configuration: 'Google Drive setup is incomplete. Check the server environment variables.',
+    admin_only: 'Only the configured central SiteSync administrator can connect Google Drive.',
+    wrong_google_account: 'You signed in with a different Google account. Choose the central storage account.'
     state: 'Google authorization could not be verified. Please try connecting again.',
     denied: 'Google Drive access was cancelled.',
     session: 'Your SiteSync session expired. Sign in and try again.',
