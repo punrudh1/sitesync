@@ -27,7 +27,8 @@ export function UploadZone({ projectId, folderId, documentId, label, notes, mult
     if (pre) return fail(pre);
     const prep = await prepareUpload(projectId, { fileName: file.name, size: file.size, mime: file.type, documentId });
     if (!prep.ok) return fail(prep.error);
-    try { const driveFileId = await putWithProgress(prep.uploadUrl, file, (progress) => patch(id, { progress })); }
+    let driveFileId: string;
+    try { driveFileId = await putWithProgress(prep.uploadUrl, file, (progress) => patch(id, { progress })); }
     catch (e) { return fail(e instanceof Error ? e.message : 'Upload failed'); }
     const fin = await finalizeUpload(projectId, { documentId: prep.documentId, versionId: prep.versionId, path: prep.path, driveFileId, fileName: file.name,
       size: file.size, mime: file.type, folderId, isNewVersion: !!documentId, label, notes });
