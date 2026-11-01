@@ -8,7 +8,7 @@ create or replace function register_drive_document(
   p_drive_file_id text, p_mime text, p_size bigint,
   p_label text default null, p_notes text default ''
 ) returns uuid language plpgsql security definer set search_path = public as $$
-declare ext text := lower(substring(p_name from '\\.([^.]+)$'));
+declare ext text := lower(substring(p_name from '\.([^.]+)$'));
 declare stored_path text := p_project::text || '/' || p_document::text || '/' || p_version::text || '/' || p_drive_file_id;
 begin
   if not is_project_member(p_project) then raise exception 'Not a member of this project'; end if;
