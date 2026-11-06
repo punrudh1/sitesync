@@ -30,7 +30,7 @@ export default async function DocumentPage({ params, searchParams }: { params: P
       <div>
         <Link href={`/projects/${projectId}/documents${doc.folder_id ? `?folder=${doc.folder_id}` : ''}`} className="text-sm text-navy-500 hover:underline">← {folder?.name ?? 'Project root'}</Link>
         <h1 className="mt-1 break-words text-2xl font-semibold">{doc.name}</h1>
-        {doc.extension === 'dwg' && <p className="mt-1 text-xs text-navy-500">DWG files are stored and downloadable, but cannot be previewed in the browser. Export a PDF or DXF to review it here.</p>}
+        {['dwg', 'rvt'].includes(doc.extension) && <p className="mt-1 text-xs text-navy-500">{doc.extension.toUpperCase()} files are stored and downloadable, but cannot currently be previewed in the browser. For Revit models, download the RVT file and open it in Autodesk Revit.</p>}
         {canView && current && <Link href={`/projects/${projectId}/documents/${documentId}/view`} className="mt-2 inline-block text-sm font-medium text-brand underline">Open in viewer</Link>}
       </div>
       <Card>
