@@ -15,7 +15,7 @@ begin
   if not found then raise exception 'Project not found'; end if;
   if p_size <= 0 or p_size > 104857600 then raise exception 'File must be between 1 byte and 100 MB'; end if;
   if p_drive_file_id !~ '^[A-Za-z0-9_-]+$' then raise exception 'Invalid Google Drive file id'; end if;
-  if ext is null or ext not in ('pdf','jpg','jpeg','png','docx','xlsx','csv','dwg','dxf','zip','txt','rvt') then raise exception 'Unsupported file extension'; end if;
+  if position('.' in p_name) = 0 or ext not in ('pdf','jpg','jpeg','png','docx','xlsx','csv','dwg','dxf','zip','txt','rvt') then raise exception 'Unsupported file extension'; end if;
 
   select coalesce(sum(file_size), 0) into used_bytes from document_versions where project_id = p_project;
   if used_bytes + p_size > 2147483648 then
