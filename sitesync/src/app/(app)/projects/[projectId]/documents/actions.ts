@@ -22,6 +22,9 @@ export async function prepareUpload(projectId: string, input: { fileName: string
   if (err) return fail(err);
   const { data: project } = await supabase.from('projects').select('id').eq('id', projectId).maybeSingle();
   if (!project) return fail('Project not found or you do not have access');
+  const { data: usedBytes, error: usageError } = await supabase.rpc('get_project_storage_usage', { p_project: projectId });
+  if (usageError) return fail('Could not check project storage quota. Apply migration 0010 first.');
+  if (Number(usedBytes ?? 0) + input.size > 2 * 1024 * 1024 * 1024) return fail('This upload would exceed the project’s 2 GB storage limit. Delete old files or versions to free space.');
 
   let documentId = randomUUID();
   if (input.documentId) {
