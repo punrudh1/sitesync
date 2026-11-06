@@ -6,7 +6,7 @@ import { AnnotationLayer, type Draft } from '@/components/markup/annotation-laye
 import { AnnotationPanel } from '@/components/markup/annotation-panel';
 import { MarkupToolbar } from '@/components/markup/toolbar';
 import type { Annotation, Markup, Tool } from '@/lib/markup';
-import type { PDFDocumentProxy, PDFRenderTask } from 'pdfjs-dist';
+import type { PDFDocumentProxy } from 'pdfjs-dist';
 
 const tb = 'rounded p-1.5 hover:bg-slate-100 disabled:opacity-40';
 type Fit = 'width' | 'page' | 'custom';
@@ -35,7 +35,7 @@ export function PdfViewer({ url, name, markup }: { url: string; name: string; ma
   const wrap = useRef<HTMLDivElement>(null);
   const area = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
-  const renderTask = useRef<PDFRenderTask | null>(null);
+  const renderTask = useRef<{ cancel: () => void; promise: Promise<void> } | null>(null);
   const renderSequence = useRef(0);
   const [pdf, setPdf] = useState<PDFDocumentProxy>();
   const [page, setPage] = useState(1);
