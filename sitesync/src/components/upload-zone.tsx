@@ -56,7 +56,7 @@ export function UploadZone({ projectId, folderId, documentId, label, notes, mult
           compact ? 'p-3' : 'p-6', over && 'border-brand bg-brand-light')}>
         <UploadCloud size={compact ? 18 : 24} aria-hidden />
         <span>Drag files here or <span className="text-brand underline">browse</span></span>
-        {!compact && <span className="text-xs">PDF, JPG, PNG, DOCX, XLSX, CSV, DWG, DXF, RVT, ZIP, TXT · 100 MB per file</span>}
+        {!compact && <span className="text-xs">PDF, JPG, PNG, DOCX, XLSX, CSV, DWG, DXF, RVT, ZIP, TXT · up to 2 GB total project storage</span>}
         <input ref={input} type="file" hidden multiple={multiple} onChange={(e) => { handle(e.target.files); e.target.value = ''; }} />
       </div>
       {items.length > 0 && (
