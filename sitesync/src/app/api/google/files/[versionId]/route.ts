@@ -20,7 +20,10 @@ export async function GET(request: NextRequest, context: { params: Promise<{ ver
   if (!driveId) return new NextResponse('Invalid file reference', { status: 500 });
 
   const { data: doc } = await supabase.from('documents').select('name').eq('id', version.document_id).maybeSingle();
-  const upstream = await googleDriveFetch(`files/${encodeURIComponent(driveId)}?alt=media`);
+  const range = request.headers.get('range');
+  const upstream = await googleDriveFetch(`files/${encodeURIComponent(driveId)}?alt=media`, {
+    headers: range ? { range } : undefined,
+  });
   if (!upstream.ok || !upstream.body) return new NextResponse('Could not retrieve file from Google Drive', { status: upstream.status || 502 });
 
   const filename = (doc?.name ?? 'download').replace(/[\r\n"]/g, '_');
@@ -28,9 +31,12 @@ export async function GET(request: NextRequest, context: { params: Promise<{ ver
     'content-type': version.mime_type || 'application/octet-stream',
     'content-disposition': `${request.nextUrl.searchParams.get('download') === '1' ? 'attachment' : 'inline'}; filename*=UTF-8''${encodeURIComponent(filename)}`,
     'cache-control': 'private, no-store',
+    'accept-ranges': 'bytes',
     'x-content-type-options': 'nosniff',
   });
   const length = upstream.headers.get('content-length');
+  const contentRange = upstream.headers.get('content-range');
   if (length) headers.set('content-length', length);
-  return new Response(upstream.body, { status: 200, headers });
+  if (contentRange) headers.set('content-range', contentRange);
+  return new Response(upstream.body, { status: upstream.status, headers });
 }
