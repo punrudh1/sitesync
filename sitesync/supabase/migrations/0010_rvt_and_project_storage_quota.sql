@@ -6,7 +6,7 @@ create or replace function register_drive_document(
   p_label text default null, p_notes text default ''
 ) returns uuid language plpgsql security definer set search_path = public as $$
 declare
-  ext text := lower(substring(p_name from '\\.([^.]+)$'));
+  ext text := lower(reverse(split_part(reverse(p_name), '.', 1)));
   stored_path text := p_project::text || '/' || p_document::text || '/' || p_version::text || '/' || p_drive_file_id;
   used_bytes bigint;
 begin
