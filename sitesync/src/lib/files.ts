@@ -1,4 +1,4 @@
-export const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100 MB per file; project quota is enforced separately
+export const MAX_FILE_SIZE = PROJECT_STORAGE_LIMIT; // a single file may use the remaining project quota
 export const PROJECT_STORAGE_LIMIT = 2 * 1024 * 1024 * 1024; // 2 GiB per project
 
 // Extension is authoritative. Browsers report inconsistent MIME types for CAD/zip files,
@@ -24,7 +24,7 @@ export function validateUpload(name: string, size: number, mime: string): string
   const ext = extOf(name);
   if (!(ext in ALLOWED)) return `.${ext || '?'} files are not supported. Allowed: ${Object.keys(ALLOWED).join(', ')}`;
   if (!Number.isFinite(size) || size <= 0) return 'The file is empty';
-  if (size > MAX_FILE_SIZE) return 'The file is larger than the 100 MB per-file limit';
+  if (size > MAX_FILE_SIZE) return 'The file is larger than the 2 GB project limit';
   if (!ALLOWED[ext].includes(mime)) return `File type does not match its .${ext} extension`;
   return null;
 }
