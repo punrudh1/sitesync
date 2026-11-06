@@ -3,7 +3,7 @@ import { ChevronRight, FileText, Folder as FolderIcon } from 'lucide-react';
 import { requireUser } from '@/lib/auth';
 import { Card } from '@/components/ui/card';
 import { UploadZone } from '@/components/upload-zone';
-import { ALLOWED, formatBytes } from '@/lib/files';
+import { ALLOWED, formatBytes, PROJECT_STORAGE_LIMIT } from '@/lib/files';
 import { DocActions, FolderActions } from './row-actions';
 import { NewFolderButton } from './new-folder';
 
@@ -19,6 +19,9 @@ export default async function Documents({ params, searchParams }: { params: Prom
     supabase.from('folders').select('id, name, parent_id').eq('project_id', projectId).order('name'),
     supabase.from('project_members').select('user_id, profiles(full_name, email)').eq('project_id', projectId),
   ]);
+  const { data: storageUsedRaw } = await supabase.rpc('get_project_storage_usage', { p_project: projectId });
+  const storageUsed = Number(storageUsedRaw ?? 0);
+  const storagePercent = Math.min(100, Math.round(storageUsed / PROJECT_STORAGE_LIMIT * 100));
   const people = new Map((members ?? []).map((m) => {
     const p = m.profiles as unknown as { full_name: string; email: string } | null;
     return [m.user_id, p?.full_name || p?.email || 'Unknown'];
@@ -64,6 +67,11 @@ export default async function Documents({ params, searchParams }: { params: Prom
         <h1 className="text-2xl font-semibold">Documents</h1>
         <div className="ml-auto"><NewFolderButton projectId={projectId} parentId={folderId} /></div>
       </div>
+      <Card className="space-y-2">
+        <div className="flex flex-wrap items-center justify-between gap-2 text-sm"><strong>Project storage</strong><span>{formatBytes(storageUsed)} of 2.0 GB used</span></div>
+        <div className="h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-brand" style={{ width: `${storagePercent}%` }} /></div>
+        <p className="text-xs text-navy-500">The 2 GB quota includes all saved document versions. Individual files are limited to 100 MB.</p>
+      </Card>
       <nav aria-label="Folder path" className="flex flex-wrap items-center gap-1 text-sm text-navy-500">
         <Link href={`/projects/${projectId}/documents`} className="hover:underline">Project root</Link>
         {crumbs.map((c) => <span key={c.id} className="flex items-center gap-1"><ChevronRight size={14} /><Link href={qs({ folder: c.id, q: undefined, type: undefined, by: undefined, mod: undefined })} className="hover:underline">{c.name}</Link></span>)}
