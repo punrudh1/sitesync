@@ -27,9 +27,10 @@ export function UploadZone({ projectId, folderId, documentId, label, notes, mult
     if (pre) return fail(pre);
     const prep = await prepareUpload(projectId, { fileName: file.name, size: file.size, mime: file.type, documentId });
     if (!prep.ok) return fail(prep.error);
-    try { await putWithProgress(prep.signedUrl, file, (progress) => patch(id, { progress })); }
+    let driveFileId: string;
+    try { driveFileId = await putWithProgress(prep.uploadUrl, file, (progress) => patch(id, { progress })); }
     catch (e) { return fail(e instanceof Error ? e.message : 'Upload failed'); }
-    const fin = await finalizeUpload(projectId, { documentId: prep.documentId, versionId: prep.versionId, path: prep.path, fileName: file.name,
+    const fin = await finalizeUpload(projectId, { documentId: prep.documentId, versionId: prep.versionId, path: prep.path, driveFileId, fileName: file.name,
       size: file.size, mime: file.type, folderId, isNewVersion: !!documentId, label, notes });
     if (!fin.ok) return fail(fin.error);
     patch(id, { state: 'done', progress: 100 });
@@ -55,7 +56,7 @@ export function UploadZone({ projectId, folderId, documentId, label, notes, mult
           compact ? 'p-3' : 'p-6', over && 'border-brand bg-brand-light')}>
         <UploadCloud size={compact ? 18 : 24} aria-hidden />
         <span>Drag files here or <span className="text-brand underline">browse</span></span>
-        {!compact && <span className="text-xs">PDF, JPG, PNG, DOCX, XLSX, CSV, DWG, DXF, ZIP, TXT · up to 100 MB</span>}
+        {!compact && <span className="text-xs">PDF, JPG, PNG, DOCX, XLSX, CSV, DWG, DXF, RVT, ZIP, TXT · up to 2 GB total project storage</span>}
         <input ref={input} type="file" hidden multiple={multiple} onChange={(e) => { handle(e.target.files); e.target.value = ''; }} />
       </div>
       {items.length > 0 && (

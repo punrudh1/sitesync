@@ -35,6 +35,8 @@ export function PdfViewer({ url, name, markup }: { url: string; name: string; ma
   const wrap = useRef<HTMLDivElement>(null);
   const area = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
+  const renderTask = useRef<{ cancel: () => void; promise: Promise<void> } | null>(null);
+  const renderSequence = useRef(0);
   const [pdf, setPdf] = useState<PDFDocumentProxy>();
   const [page, setPage] = useState(1);
   const [fit, setFit] = useState<Fit>('width');
@@ -54,17 +56,21 @@ export function PdfViewer({ url, name, markup }: { url: string; name: string; ma
       try {
         const lib = await import('pdfjs-dist');
         lib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
-        const t = lib.getDocument({ url });
+        const t = lib.getDocument({ url, withCredentials: true });
         task = t;
         setPdf(await t.promise);
       } catch { setError('This PDF could not be loaded. Try downloading it instead.'); }
     })();
-    return () => { task?.destroy(); };
+    return () => { renderTask.current?.cancel(); renderTask.current = null; task?.destroy(); };
   }, [url]);
 
   const render = useCallback(async () => {
     if (!pdf || !canvas.current || !area.current) return;
+    const sequence = ++renderSequence.current;
+    renderTask.current?.cancel();
+    renderTask.current = null;
     const p = await pdf.getPage(page);
+    if (sequence !== renderSequence.current || !canvas.current || !area.current) return;
     const base = p.getViewport({ scale: 1 });
     const availW = area.current.clientWidth - 24, availH = area.current.clientHeight - 24;
     const scale = fit === 'width' ? availW / base.width : fit === 'page' ? Math.min(availW / base.width, availH / base.height) : zoom;
@@ -75,10 +81,22 @@ export function PdfViewer({ url, name, markup }: { url: string; name: string; ma
     c.style.height = `${vp.height / (window.devicePixelRatio || 1)}px`;
     setSize({ w: vp.width / (window.devicePixelRatio || 1), h: vp.height / (window.devicePixelRatio || 1) });
     if (fit !== 'custom') setZoom(scale);
-    await p.render({ canvas: c, viewport: vp }).promise.catch(() => {}); // a newer render may cancel this one
+    const task = p.render({ canvas: c, viewport: vp });
+    renderTask.current = task;
+    try {
+      await task.promise;
+    } catch (err) {
+      // Rendering is intentionally cancelled when the page, zoom, or viewport changes.
+      if (!(err instanceof Error && err.name === 'RenderingCancelledException')) throw err;
+    } finally {
+      if (renderTask.current === task) renderTask.current = null;
+    }
   }, [pdf, page, fit, zoom]);
 
-  useEffect(() => { render(); }, [render]);
+  useEffect(() => {
+    void render().catch(() => setError('This PDF page could not be rendered. Try downloading the original file.'));
+    return () => { renderSequence.current += 1; renderTask.current?.cancel(); renderTask.current = null; };
+  }, [render]);
   useEffect(() => {
     if (fit === 'custom' || !area.current) return;
     const ro = new ResizeObserver(() => render()); ro.observe(area.current); return () => ro.disconnect();

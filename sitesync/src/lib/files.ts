@@ -1,4 +1,5 @@
-export const MAX_FILE_SIZE = 100 * 1024 * 1024; // keep in sync with bucket limit and SQL RPCs
+export const PROJECT_STORAGE_LIMIT = 2 * 1024 * 1024 * 1024; // 2 GiB per project
+export const MAX_FILE_SIZE = PROJECT_STORAGE_LIMIT; // a single file may use the remaining project quota
 
 // Extension is authoritative. Browsers report inconsistent MIME types for CAD/zip files,
 // so those accept the generic types too.
@@ -12,17 +13,18 @@ export const ALLOWED: Record<string, string[]> = {
   txt: ['text/plain', ...GENERIC],
   dwg: ['application/acad', 'application/x-acad', 'image/vnd.dwg', 'image/x-dwg', 'application/dwg', ...GENERIC],
   dxf: ['application/dxf', 'image/vnd.dxf', 'image/x-dxf', 'text/plain', ...GENERIC],
+  rvt: ['application/vnd.autodesk.revit', 'application/x-autodesk-revit', ...GENERIC],
   zip: ['application/zip', 'application/x-zip-compressed', ...GENERIC],
 };
 
-export const extOf = (name: string) => (name.match(/\.([^.\/\\]+)$/)?.[1] ?? '').toLowerCase();
+export const extOf = (name: string) => name.slice(name.lastIndexOf('.') + 1).toLowerCase();
 
 export function validateUpload(name: string, size: number, mime: string): string | null {
-  if (!name || /[\/\\]/.test(name) || name.length > 255) return 'Invalid file name';
+  if (!name || name.includes('/') || name.includes('\\') || name.length > 255) return 'Invalid file name';
   const ext = extOf(name);
   if (!(ext in ALLOWED)) return `.${ext || '?'} files are not supported. Allowed: ${Object.keys(ALLOWED).join(', ')}`;
   if (!Number.isFinite(size) || size <= 0) return 'The file is empty';
-  if (size > MAX_FILE_SIZE) return 'The file is larger than the 100 MB limit';
+  if (size > MAX_FILE_SIZE) return 'The file is larger than the 2 GB project limit';
   if (!ALLOWED[ext].includes(mime)) return `File type does not match its .${ext} extension`;
   return null;
 }
@@ -31,8 +33,8 @@ export function validateUpload(name: string, size: number, mime: string): string
 export const storageSafeName = (name: string) => name.replace(/[^A-Za-z0-9._-]+/g, '_').slice(-120) || 'file';
 
 export const formatBytes = (n: number) =>
-  n < 1024 ? `${n} B` : n < 1048576 ? `${(n / 1024).toFixed(1)} KB` : `${(n / 1048576).toFixed(1)} MB`;
+  n < 1024 ? `${n} B` : n < 1048576 ? `${(n / 1024).toFixed(1)} KB` : n < 1073741824 ? `${(n / 1048576).toFixed(1)} MB` : `${(n / 1073741824).toFixed(2)} GB`;
 
 export type Kind = 'pdf' | 'image' | 'dxf' | 'other';
-/** What the in-browser viewer can show. DWG is a proprietary binary format and is stored/downloaded only. */
+/** What the in-browser viewer can show. DWG and RVT are stored/downloaded only. */
 export const kindOf = (ext: string): Kind => (ext === 'pdf' ? 'pdf' : ['jpg', 'jpeg', 'png'].includes(ext) ? 'image' : ext === 'dxf' ? 'dxf' : 'other');
