@@ -1,5 +1,5 @@
-export const MAX_FILE_SIZE = PROJECT_STORAGE_LIMIT; // a single file may use the remaining project quota
 export const PROJECT_STORAGE_LIMIT = 2 * 1024 * 1024 * 1024; // 2 GiB per project
+export const MAX_FILE_SIZE = PROJECT_STORAGE_LIMIT; // a single file may use the remaining project quota
 
 // Extension is authoritative. Browsers report inconsistent MIME types for CAD/zip files,
 // so those accept the generic types too.
