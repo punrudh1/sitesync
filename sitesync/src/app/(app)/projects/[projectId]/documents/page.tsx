@@ -70,7 +70,7 @@ export default async function Documents({ params, searchParams }: { params: Prom
       <Card className="space-y-2">
         <div className="flex flex-wrap items-center justify-between gap-2 text-sm"><strong>Project storage</strong><span>{formatBytes(storageUsed)} of 2.0 GB used</span></div>
         <div className="h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-brand" style={{ width: `${storagePercent}%` }} /></div>
-        <p className="text-xs text-navy-500">The 2 GB quota includes all saved document versions. Individual files are limited to 100 MB.</p>
+        <p className="text-xs text-navy-500">The 2 GB quota includes all saved document versions. A single file can use the remaining available project storage.</p>
       </Card>
       <nav aria-label="Folder path" className="flex flex-wrap items-center gap-1 text-sm text-navy-500">
         <Link href={`/projects/${projectId}/documents`} className="hover:underline">Project root</Link>
