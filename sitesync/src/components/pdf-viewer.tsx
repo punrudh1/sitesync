@@ -54,7 +54,7 @@ export function PdfViewer({ url, name, markup }: { url: string; name: string; ma
       try {
         const lib = await import('pdfjs-dist');
         lib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
-        const t = lib.getDocument({ url });
+        const t = lib.getDocument({ url, disableRange: true, disableStream: true, disableAutoFetch: true });
         task = t;
         setPdf(await t.promise);
       } catch { setError('This PDF could not be loaded. Try downloading it instead.'); }
