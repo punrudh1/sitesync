@@ -20,7 +20,7 @@ export const ALLOWED: Record<string, string[]> = {
 export const extOf = (name: string) => name.slice(name.lastIndexOf('.') + 1).toLowerCase();
 
 export function validateUpload(name: string, size: number, mime: string): string | null {
-  if (!name || name.includes('/') || name.includes('\\\\') || name.length > 255) return 'Invalid file name';
+  if (!name || name.includes('/') || name.includes('\\') || name.length > 255) return 'Invalid file name';
   const ext = extOf(name);
   if (!(ext in ALLOWED)) return `.${ext || '?'} files are not supported. Allowed: ${Object.keys(ALLOWED).join(', ')}`;
   if (!Number.isFinite(size) || size <= 0) return 'The file is empty';
@@ -33,7 +33,7 @@ export function validateUpload(name: string, size: number, mime: string): string
 export const storageSafeName = (name: string) => name.replace(/[^A-Za-z0-9._-]+/g, '_').slice(-120) || 'file';
 
 export const formatBytes = (n: number) =>
-  n < 1024 ? `${n} B` : n < 1048576 ? `${(n / 1024).toFixed(1)} KB` : `${(n / 1048576).toFixed(1)} MB`;
+  n < 1024 ? `${n} B` : n < 1048576 ? `${(n / 1024).toFixed(1)} KB` : n < 1073741824 ? `${(n / 1048576).toFixed(1)} MB` : `${(n / 1073741824).toFixed(2)} GB`;
 
 export type Kind = 'pdf' | 'image' | 'dxf' | 'other';
 /** What the in-browser viewer can show. DWG and RVT are stored/downloaded only. */
