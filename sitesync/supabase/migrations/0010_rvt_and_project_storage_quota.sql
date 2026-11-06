@@ -13,7 +13,7 @@ begin
   if not is_project_member(p_project) then raise exception 'Not a member of this project'; end if;
   perform 1 from projects where id = p_project for update;
   if not found then raise exception 'Project not found'; end if;
-  if p_size <= 0 or p_size > 104857600 then raise exception 'File must be between 1 byte and 100 MB'; end if;
+  if p_size <= 0 or p_size > 2147483648 then raise exception 'File must be between 1 byte and 2 GB'; end if;
   if p_drive_file_id !~ '^[A-Za-z0-9_-]+$' then raise exception 'Invalid Google Drive file id'; end if;
   if position('.' in p_name) = 0 or ext not in ('pdf','jpg','jpeg','png','docx','xlsx','csv','dwg','dxf','zip','txt','rvt') then raise exception 'Unsupported file extension'; end if;
 
@@ -50,7 +50,7 @@ begin
   if not found then raise exception 'Project not found'; end if;
   select * into d from documents where id = p_document for update;
   if not found then raise exception 'Document not found'; end if;
-  if p_size <= 0 or p_size > 104857600 then raise exception 'File must be between 1 byte and 100 MB'; end if;
+  if p_size <= 0 or p_size > 2147483648 then raise exception 'File must be between 1 byte and 2 GB'; end if;
   if p_drive_file_id !~ '^[A-Za-z0-9_-]+$' then raise exception 'Invalid Google Drive file id'; end if;
 
   select coalesce(sum(file_size), 0) into used_bytes from document_versions where project_id = v_project_id;
