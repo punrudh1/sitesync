@@ -17,10 +17,10 @@ export const ALLOWED: Record<string, string[]> = {
   zip: ['application/zip', 'application/x-zip-compressed', ...GENERIC],
 };
 
-export const extOf = (name: string) => (name.match(/\\.([^.\\/\\\\]+)$/)?.[1] ?? '').toLowerCase();
+export const extOf = (name: string) => name.slice(name.lastIndexOf('.') + 1).toLowerCase();
 
 export function validateUpload(name: string, size: number, mime: string): string | null {
-  if (!name || /[\\/\\\\]/.test(name) || name.length > 255) return 'Invalid file name';
+  if (!name || name.includes('/') || name.includes('\\\\') || name.length > 255) return 'Invalid file name';
   const ext = extOf(name);
   if (!(ext in ALLOWED)) return `.${ext || '?'} files are not supported. Allowed: ${Object.keys(ALLOWED).join(', ')}`;
   if (!Number.isFinite(size) || size <= 0) return 'The file is empty';
