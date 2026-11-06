@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid Google upload session' }, { status: 400 });
   }
   if (target.protocol !== 'https:' || target.hostname !== 'www.googleapis.com' ||
-      !target.pathname.startsWith('/upload/drive/v3/files/')) {
+      !(target.pathname === '/upload/drive/v3/files' || target.pathname.startsWith('/upload/drive/v3/files/'))) {
     return NextResponse.json({ error: 'Invalid Google upload session' }, { status: 400 });
   }
 
