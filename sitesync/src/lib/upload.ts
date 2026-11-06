@@ -1,24 +1,29 @@
-/** Browser-only: PUT a file to a Google Drive resumable upload session with progress events. */
-export function putWithProgress(url: string, file: File, onProgress: (p: number) => void) {
-  return new Promise<string>((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open('PUT', url);
-    xhr.setRequestHeader('content-type', file.type || 'application/octet-stream');
-    xhr.upload.onprogress = (e) => e.lengthComputable && onProgress(Math.round((e.loaded / e.total) * 100));
-    xhr.onload = () => {
-      if (xhr.status < 200 || xhr.status >= 300) {
-        reject(new Error(`Google Drive upload failed (${xhr.status})`));
-        return;
-      }
-      try {
-        const result = JSON.parse(xhr.responseText) as { id?: string };
-        if (!result.id) throw new Error('Google Drive did not return a file ID');
-        resolve(result.id);
-      } catch (error) {
-        reject(error instanceof Error ? error : new Error('Could not read Google Drive upload result'));
-      }
-    };
-    xhr.onerror = () => reject(new Error('Network error during upload'));
-    xhr.send(file);
-  });
+/** Browser upload through same-origin server chunks to avoid Google Drive browser CORS restrictions. */
+export async function putWithProgress(url: string, file: File, onProgress: (p: number) => void) {
+  const chunkSize = 4 * 1024 * 1024;
+  let fileId: string | undefined;
+
+  for (let start = 0; start < file.size; start += chunkSize) {
+    const chunk = file.slice(start, Math.min(start + chunkSize, file.size));
+    const form = new FormData();
+    form.set('uploadUrl', url);
+    form.set('start', String(start));
+    form.set('total', String(file.size));
+    form.set('chunk', chunk, file.name);
+
+    let response: Response;
+    try {
+      response = await fetch('/api/google/upload-chunk', { method: 'POST', body: form, credentials: 'same-origin' });
+    } catch {
+      throw new Error('Network error while sending an upload chunk to SiteSync');
+    }
+
+    const result = await response.json().catch(() => ({})) as { done?: boolean; id?: string; error?: string };
+    if (!response.ok) throw new Error(result.error || `Upload failed (HTTP ${response.status})`);
+    onProgress(Math.round(((start + chunk.size) / file.size) * 100));
+    if (result.done) fileId = result.id;
+  }
+
+  if (!fileId) throw new Error('Google Drive did not confirm the completed upload');
+  return fileId;
 }
