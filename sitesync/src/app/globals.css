@@ -27,3 +27,15 @@ body { background: var(--site-bg); color: var(--site-text); }
 .border-brand { border-color: var(--site-brand) !important; }
 .bg-brand-light { background-color: var(--site-brand-light) !important; }
 :focus-visible { outline-color: var(--site-brand) !important; }
+
+:root[data-theme="dark"] .text-slate-900,
+:root[data-theme="dark"] .text-slate-800,
+:root[data-theme="dark"] .text-slate-700,
+:root[data-theme="dark"] .text-slate-600 { color: #e2e8f0 !important; }
+:root[data-theme="dark"] .text-slate-500,
+:root[data-theme="dark"] .text-slate-400 { color: #94a3b8 !important; }
+:root[data-theme="dark"] input,
+:root[data-theme="dark"] textarea,
+:root[data-theme="dark"] select { background-color: var(--site-surface-muted); color: var(--site-text); border-color: var(--site-border); }
+:root[data-theme="dark"] .shadow-sm,
+:root[data-theme="dark"] .shadow-lg { --tw-shadow-color: #00000055; }
