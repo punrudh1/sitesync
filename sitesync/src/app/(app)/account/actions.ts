@@ -49,3 +49,15 @@ export async function updateEmailPrefs(enabled: boolean): Promise<{ ok: boolean;
   revalidatePath('/account');
   return { ok: true };
 }
+
+
+export async function updateAppearance(theme: 'dark' | 'light' | 'system', accent: 'orange' | 'blue' | 'green' | 'purple' | 'pink'): Promise<{ ok: boolean; error?: string }> {
+  const { supabase, user } = await requireUser();
+  const { error } = await supabase.from('profiles').update({
+    theme_preference: theme,
+    accent_preference: accent,
+  }).eq('id', user.id);
+  if (error) return { ok: false, error: 'Could not save appearance preferences. Make sure migration 0012 has been applied.' };
+  revalidatePath('/', 'layout');
+  return { ok: true };
+}
