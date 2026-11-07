@@ -39,3 +39,14 @@ body { background: var(--site-bg); color: var(--site-text); }
 :root[data-theme="dark"] select { background-color: var(--site-surface-muted); color: var(--site-text); border-color: var(--site-border); }
 :root[data-theme="dark"] .shadow-sm,
 :root[data-theme="dark"] .shadow-lg { --tw-shadow-color: #00000055; }
+
+
+/* Subtle, readable navigation hover state */
+nav[aria-label="Project"] a:hover:not([aria-current="page"]) {
+  background-color: rgb(15 23 42 / 0.06) !important;
+  color: var(--site-text) !important;
+}
+:root[data-theme="dark"] nav[aria-label="Project"] a:hover:not([aria-current="page"]) {
+  background-color: rgb(148 163 184 / 0.16) !important;
+  color: #f1f5f9 !important;
+}
