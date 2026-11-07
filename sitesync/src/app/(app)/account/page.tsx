@@ -8,12 +8,13 @@ import { AvatarUploader } from './avatar-uploader';
 import { NameForm } from './name-form';
 import { EmailPrefs } from './email-prefs';
 import { DriveConnection } from './drive-connection';
+import { AppearanceSettings } from './appearance-settings';
 
 export const metadata = { title: 'Your account' };
 
 export default async function Account() {
   const { supabase, user } = await requireUser();
-  const { data: p } = await supabase.from('profiles').select('full_name, email, avatar_url, email_notifications').eq('id', user.id).maybeSingle();
+  const { data: p } = await supabase.from('profiles').select('full_name, email, avatar_url, email_notifications, theme_preference, accent_preference').eq('id', user.id).maybeSingle();
   const url = await signedUrl(supabase, 'avatars', p?.avatar_url);
   let drive: { drive_email: string; connected_at: string } | null = null;
   try {
@@ -29,6 +30,7 @@ export default async function Account() {
       <h1 className="text-2xl font-semibold">Your account</h1>
       <Card className="space-y-4"><AvatarUploader url={url} initial={(p?.full_name?.[0] ?? p?.email?.[0] ?? '?').toUpperCase()} /><NameForm name={p?.full_name ?? ''} /></Card>
       <Card><EmailPrefs enabled={p?.email_notifications ?? true} /></Card>
+      <Card><AppearanceSettings initialTheme={(p?.theme_preference ?? 'dark') as 'dark' | 'light' | 'system'} initialAccent={(p?.accent_preference ?? 'orange') as 'orange' | 'blue' | 'green' | 'purple' | 'pink'} /></Card>
       <DriveConnection email={drive?.drive_email ?? null} connectedAt={drive?.connected_at ?? null} />
       <Card className="text-sm"><p className="text-navy-500">Email</p><p>{p?.email}</p>
         <p className="mt-3 text-xs text-navy-500">To change your password, sign out and use “Forgot password?” on the sign-in page.</p></Card>
