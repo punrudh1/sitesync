@@ -11,7 +11,7 @@ export function NotificationBell({ items, unread }: { items: Notif[]; unread: nu
   const [pending, start] = useTransition();
   return (
     <details className="relative">
-      <summary className="relative cursor-pointer list-none rounded-md p-2 hover:bg-slate-100" aria-label={`Notifications, ${unread} unread`}>
+      <summary className="header-icon-control relative cursor-pointer list-none rounded-md p-2 transition-colors" aria-label={`Notifications, ${unread} unread`}>
         <Bell size={18} />
         {unread > 0 && <span className="absolute right-0.5 top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-brand px-1 text-[10px] font-semibold text-white">{unread > 9 ? '9+' : unread}</span>}
       </summary>
