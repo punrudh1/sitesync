@@ -67,3 +67,19 @@ tbody tr:hover {
   background-color: rgb(148 163 184 / 0.13) !important;
   color: #f1f5f9 !important;
 }
+
+
+/* Account control: explicit translucent hover/focus in both themes. */
+.account-link:hover,
+.account-link:focus,
+.account-link:focus-visible {
+  background-color: color-mix(in srgb, var(--site-brand) 18%, transparent) !important;
+  color: var(--site-text) !important;
+}
+:root[data-theme="dark"] .account-link:hover,
+:root[data-theme="dark"] .account-link:focus,
+:root[data-theme="dark"] .account-link:focus-visible {
+  background-color: color-mix(in srgb, var(--site-brand) 24%, transparent) !important;
+  color: #f1f5f9 !important;
+}
+.account-link .text-navy-500 { color: inherit !important; }
