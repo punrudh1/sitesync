@@ -34,7 +34,7 @@ export function Shell({ project, projects, userName, avatarUrl, notifications, u
               : <span aria-hidden className="grid h-7 w-7 place-items-center rounded-full bg-navy-900 text-xs font-semibold text-white">{(userName[0] ?? '?').toUpperCase()}</span>}
             <span className="hidden max-w-[10rem] truncate text-navy-500 md:inline">{userName}</span>
           </Link>
-          <form action={signOut}><button className="inline-flex items-center gap-1 rounded-md px-2 py-1.5 hover:bg-slate-100" aria-label="Sign out"><LogOut size={16} /><span className="hidden sm:inline">Sign out</span></button></form>
+          <form action={signOut}><button className="sign-out-button inline-flex items-center gap-1 rounded-md px-2 py-1.5 transition-colors" aria-label="Sign out"><LogOut size={16} /><span className="hidden sm:inline">Sign out</span></button></form>
         </div>
       </header>
       <div className="flex flex-1 flex-col md:flex-row">
