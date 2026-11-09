@@ -27,7 +27,7 @@ export function Shell({ project, projects, userName, avatarUrl, notifications, u
         <div className="ml-auto flex items-center gap-1 text-sm sm:gap-2">
           <Link href={`/projects/${project.id}/search`} aria-label="Search" className="rounded-md p-2 hover:bg-slate-100 sm:hidden"><Search size={18} /></Link>
           <NotificationBell items={notifications} unread={unread} />
-          <Link href="/account" className="flex items-center gap-2 rounded-md px-1.5 py-1 transition-colors hover:bg-brand-light focus-visible:bg-brand-light" aria-label={`Account: ${userName}`}>
+          <Link href="/account" className="account-link flex items-center gap-2 rounded-md px-1.5 py-1 transition-colors" aria-label={`Account: ${userName}`}>
             {avatarUrl
               // eslint-disable-next-line @next/next/no-img-element
               ? <img src={avatarUrl} alt="" className="h-7 w-7 rounded-full object-cover" />
