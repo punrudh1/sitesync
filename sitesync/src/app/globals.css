@@ -83,3 +83,18 @@ tbody tr:hover {
   color: #f1f5f9 !important;
 }
 .account-link .text-navy-500 { color: inherit !important; }
+
+
+/* Sign-out control matches the translucent account-control hover style. */
+.sign-out-button:hover,
+.sign-out-button:focus,
+.sign-out-button:focus-visible {
+  background-color: color-mix(in srgb, var(--site-brand) 18%, transparent) !important;
+  color: var(--site-text) !important;
+}
+:root[data-theme="dark"] .sign-out-button:hover,
+:root[data-theme="dark"] .sign-out-button:focus,
+:root[data-theme="dark"] .sign-out-button:focus-visible {
+  background-color: color-mix(in srgb, var(--site-brand) 24%, transparent) !important;
+  color: #f1f5f9 !important;
+}
