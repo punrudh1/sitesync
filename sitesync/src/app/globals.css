@@ -50,3 +50,14 @@ nav[aria-label="Project"] a:hover:not([aria-current="page"]) {
   background-color: rgb(148 163 184 / 0.16) !important;
   color: #f1f5f9 !important;
 }
+
+
+/* Subtle document and folder table-row hover; preserve readable text */
+tbody tr:hover {
+  background-color: rgb(15 23 42 / 0.045) !important;
+  color: var(--site-text) !important;
+}
+:root[data-theme="dark"] tbody tr:hover {
+  background-color: rgb(148 163 184 / 0.13) !important;
+  color: #f1f5f9 !important;
+}
