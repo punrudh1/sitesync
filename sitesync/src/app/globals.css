@@ -25,7 +25,13 @@ body { background: var(--site-bg); color: var(--site-text); }
 .hover\\:bg-brand-dark:hover { background-color: var(--site-brand-dark) !important; }
 .text-brand { color: var(--site-brand) !important; }
 .border-brand { border-color: var(--site-brand) !important; }
-.bg-brand-light { background-color: var(--site-brand-light) !important; }
+/* Selected and highlighted surfaces use a translucent accent tint. */
+.bg-brand-light {
+  background-color: color-mix(in srgb, var(--site-brand) 20%, transparent) !important;
+}
+:root[data-theme="dark"] .bg-brand-light {
+  background-color: color-mix(in srgb, var(--site-brand) 24%, transparent) !important;
+}
 :focus-visible { outline-color: var(--site-brand) !important; }
 
 :root[data-theme="dark"] .text-slate-900,
