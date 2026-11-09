@@ -25,7 +25,7 @@ export function Shell({ project, projects, userName, avatarUrl, notifications, u
           <input name="q" type="search" required minLength={2} placeholder="Search documents, tasks, messages…" aria-label="Search project" className="w-full rounded-md border border-slate-300 bg-slate-50 px-3 py-1.5 text-sm" />
         </form>
         <div className="ml-auto flex items-center gap-1 text-sm sm:gap-2">
-          <Link href={`/projects/${project.id}/search`} aria-label="Search" className="rounded-md p-2 hover:bg-slate-100 sm:hidden"><Search size={18} /></Link>
+          <Link href={`/projects/${project.id}/search`} aria-label="Search" className="header-icon-control rounded-md p-2 transition-colors sm:hidden"><Search size={18} /></Link>
           <NotificationBell items={notifications} unread={unread} />
           <Link href="/account" className="account-link flex items-center gap-2 rounded-md px-1.5 py-1 transition-colors" aria-label={`Account: ${userName}`}>
             {avatarUrl
