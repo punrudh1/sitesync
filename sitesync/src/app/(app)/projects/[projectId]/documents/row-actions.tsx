@@ -7,7 +7,7 @@ import { Download, FolderInput, Pencil, Trash2 } from 'lucide-react';
 import { deleteDocument, deleteFolder, getDownloadUrl, moveDocument, renameDocument, renameFolder } from './actions';
 
 type Folder = { id: string; label: string };
-const btn = 'rounded p-1.5 text-navy-500 hover:bg-slate-100 hover:text-navy-950 disabled:opacity-50';
+const btn = 'document-action-button rounded p-1.5 text-navy-500 transition-colors disabled:opacity-50';
 
 export function DocActions({ projectId, documentId, name, versionId, folders, currentFolder }: {
   projectId: string; documentId: string; name: string; versionId: string | null; folders: Folder[]; currentFolder: string | null;
